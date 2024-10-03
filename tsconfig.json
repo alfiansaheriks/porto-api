@@ -4,6 +4,6 @@
     "rootDir": "./",
     "outDir": "./build"
   },
-  "include": ["app/**/*"],
+  "include": ["**/*"]
   "exclude": ["build", "node_modules"]
 }
