@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy Node.js app to Azure Web App - porto-api
 
 on:
@@ -13,6 +10,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      NODE_ENV: test
+      APP_KEY: ${{ secrets.APP_KEY }}
+      HOST: ${{ secrets.HOST }}
+      LOG_LEVEL: ${{ secrets.LOG_LEVEL }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_DATABASE: ${{ secrets.DB_DATABASE }}
+      # Add any additional environment variables here
+
     steps:
       - uses: actions/checkout@v4
 
@@ -21,14 +30,35 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: npm install, build, and test
+      - name: Create .env file
         run: |
-          npm install
-          npm run build --if-present
-          npm run test --if-present
+          echo NODE_ENV=${{ env.NODE_ENV }} >> .env
+          echo APP_KEY=${{ env.APP_KEY }} >> .env
+          echo HOST=${{ env.HOST }} >> .env
+          echo LOG_LEVEL=${{ env.LOG_LEVEL }} >> .env
+          echo DB_HOST=${{ env.DB_HOST }} >> .env
+          echo DB_PORT=${{ env.DB_PORT }} >> .env
+          echo DB_USER=${{ env.DB_USER }} >> .env
+          echo DB_PASSWORD=${{ env.DB_PASSWORD }} >> .env
+          echo DB_DATABASE=${{ env.DB_DATABASE }} >> .env
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run migrations
+        run: node ace migration:run
+
+      - name: Seed database
+        run: node ace db:seed
+
+      - name: Build the project
+        run: npm run build --if-present
+
+      - name: Run tests
+        run: npm run test --if-present
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: zip -r release.zip ./*
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -43,7 +73,7 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
+      id-token: write # This is required for requesting the JWT
 
     steps:
       - name: Download artifact from build job
@@ -53,7 +83,7 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -67,5 +97,4 @@ jobs:
         with:
           app-name: 'porto-api'
           slot-name: 'Production'
-          package: .
-          
+          package: release.zip
