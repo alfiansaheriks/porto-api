@@ -12,6 +12,15 @@ export default class ProjectCategoriesController {
     }
   }
 
+  public async showById({ response, params }: HttpContext) {
+    try {
+      const projectCategory = await ProjectCategory.findOrFail(params.id)
+      return response.json(projectCategory)
+    } catch (error) {
+      return response.status(404).json({ error: 'Category not found' })
+    }
+  }
+
   public async store({ request, response }: HttpContext) {
     try {
       const data = request.body()

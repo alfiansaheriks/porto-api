@@ -19,12 +19,16 @@ const PostsController = () => import('#controllers/posts_controller')
 
 router.get('/projects', [ProjectsController, 'index'])
 router.get('/projects/:id', [ProjectsController, 'showById'])
+router.get('/projects/year/:year', [ProjectsController, 'showByYear'])
 router.post('/projects', [ProjectsController, 'store']).use(middleware.auth())
 router.put('/projects/:id', [ProjectsController, 'update']).use(middleware.auth())
 router.delete('/projects/:id', [ProjectsController, 'destroy']).use(middleware.auth())
 router.get('/project/:slug', [ProjectsController, 'show'])
+router.post('/projects/image/:id', [ProjectsController, 'addProjectImage']).use(middleware.auth())
+router.get('/projects/showimg/:id', [ProjectsController, 'showImage'])
 
 router.get('/categories', [ProjectCategoriesController, 'index'])
+router.get('categories/:id', [ProjectCategoriesController, 'showById'])
 router.post('/categories', [ProjectCategoriesController, 'store']).use(middleware.auth())
 router.put('/categories/:id', [ProjectCategoriesController, 'update']).use(middleware.auth())
 router.delete('/categories/:id', [ProjectCategoriesController, 'destroy']).use(middleware.auth())
@@ -49,3 +53,4 @@ router.delete('/activities/:id', [ActivitiesController, 'destroy']).use(middlewa
 
 router.post('/login', [SessionController, 'store'])
 router.post('/register', [AuthController, 'register'])
+

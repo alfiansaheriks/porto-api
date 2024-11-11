@@ -23,6 +23,9 @@ export default class Project extends BaseModel {
   @column()
   declare icon: string
 
+  @column()
+  declare image: string
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
